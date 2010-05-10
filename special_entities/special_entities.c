@@ -5,9 +5,11 @@
 
 #include <glib.h>
 
+/* TODO Make the table more flexible */
 #define ENTITY_NUM 4
 #define ENTITY_TYPES 3
-char special_entities[ENTITY_NUM][ENTITY_TYPES+1][7] = {
+
+char *special_entities[ENTITY_NUM][ENTITY_TYPES+1] = {
 {"\"", "&quot;", "&#34;", "&#x22;"},
 {"&",  "&amp;",  "&#38;", "&#x26;"},
 {"<",  "&lt;",   "&#60;", "&#x3C;"},
