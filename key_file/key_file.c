@@ -19,6 +19,7 @@ main ()
 
 	if (key_list == NULL) {
 		g_printf ("key list is NULL\n");
+		g_strfreev (key_list);
 		return 1;
 	}
 
