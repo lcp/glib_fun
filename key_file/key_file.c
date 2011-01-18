@@ -22,6 +22,7 @@ main ()
 	}
 
 	g_key_file_free (key_file);
+	g_strfreev (key_list);
 
 	return 0;
 }
