@@ -17,7 +17,12 @@ main ()
 
 	key_list = g_key_file_get_keys (key_file, "devices", &length, NULL);
 
-	for (i = 0; i < length; i++) {
+	if (key_list == NULL) {
+		g_printf ("key list is NULL\n");
+		return 1;
+	}
+
+	for (i = 0; key_list[i] != NULL; i++) {
 		g_printf ("%s\n", key_list[i]);
 	}
 
