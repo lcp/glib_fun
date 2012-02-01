@@ -33,20 +33,21 @@ struct subject
 	char *email;
 };
 
-char *
-snip_variable (const char *input)
+guint
+count_variable_length (const char *input)
 {
-	char *ptr = input;
-	int length = 0;
+	char *ptr;
+	guint length = 0;
 
-	g_return_val_if_fail (input != NULL, NULL);
+	g_return_val_if_fail (input != NULL, 0);
 
+	ptr = (char *)input;
 	while (*ptr != '/' && *ptr != '\0') {
 		length++;
 		ptr++;
 	}
 
-	return strndup (input, length);
+	return length;
 }
 
 struct subject *
@@ -54,40 +55,66 @@ parse_subject (const char *subject_str)
 {
 	struct subject *subject;
 	char *ptr;
-	
+	guint length = 0;
+
 	g_return_val_if_fail (subject_str != NULL, NULL);
 
 	subject = g_new0 (struct subject, 1);
 
-	ptr = subject_str;
+	ptr = (char *)subject_str;
 	while (*ptr != '\0') {
 		if (strncmp (ptr, "/C=", 3) == 0) {
-			subject->country = snip_variable (ptr+3);
-			ptr = ptr + strlen (subject->country) + 2;
+			ptr += 3;
+			length = count_variable_length(ptr);
+			subject->country = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/ST=", 4) == 0) {
-			subject->state = snip_variable (ptr+4);
-			ptr = ptr + strlen (subject->state) + 3;
+			ptr += 4;
+			length = count_variable_length(ptr);
+			subject->state = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/L=", 3) == 0) {
-			subject->locality = snip_variable (ptr+3);
-			ptr = ptr + strlen (subject->locality) + 2;
+			ptr += 3;
+			length = count_variable_length(ptr);
+			subject->locality = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/O=", 3) == 0) {
-			subject->org = snip_variable (ptr+3);
-			ptr = ptr + strlen (subject->org) + 2;
+			ptr += 3;
+			length = count_variable_length(ptr);
+			subject->org = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/OU=", 4) == 0) {
-			subject->org_unit = snip_variable (ptr+4);
-			ptr = ptr + strlen (subject->org_unit) + 3;
+			ptr += 4;
+			length = count_variable_length(ptr);
+			subject->org_unit = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/CN=", 4) == 0) {
-			subject->common_name = snip_variable (ptr+4);
-			ptr = ptr + strlen (subject->common_name) + 3;
+			ptr += 4;
+			length = count_variable_length(ptr);
+			subject->common_name = g_strndup (ptr, length);
 		} else if (strncmp (ptr, "/emailAddress=", 14) == 0) {
-			subject->email = snip_variable (ptr+14);
-			ptr = ptr + strlen (subject->email) + 13;
+			ptr += 14;
+			length = count_variable_length(ptr);
+			subject->email = g_strndup (ptr, length);
 		} else {
-			ptr++;
+			length = 1;
 		}
+
+		ptr += length;
 	}
 
 	return subject;
+}
+
+void
+free_subject (struct subject *subject)
+{
+	g_return_if_fail (subject != NULL);
+
+	g_free (subject->country);
+	g_free (subject->state);
+	g_free (subject->locality);
+	g_free (subject->org);
+	g_free (subject->org_unit);
+	g_free (subject->common_name);
+	g_free (subject->email);
+
+	g_free (subject);
 }
 
 void
@@ -118,7 +145,7 @@ main()
 
 	print_subject (subject);
 
-	g_free (subject);
+	free_subject (subject);
 
 	printf ("\n====\n\n");
 
@@ -126,7 +153,7 @@ main()
 
 	print_subject (subject);
 
-	g_free (subject);
-	
+	free_subject (subject);
+
 	return 0;
 }
