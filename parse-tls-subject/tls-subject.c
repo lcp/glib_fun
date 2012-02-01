@@ -122,7 +122,7 @@ main()
 
 	printf ("\n====\n\n");
 
-	subject = parse_subject (SUBJECT_1);
+	subject = parse_subject (SUBJECT_2);
 
 	print_subject (subject);
 
