@@ -136,6 +136,73 @@ print_subject (struct subject *subject)
 		printf ("Email = %s\n", subject->email);
 }
 
+void
+parse_and_print_subject (const char *subject_str)
+{
+	char *subject_dup, *ptr;
+	char *country = NULL;
+	char *state = NULL;
+	char *locality = NULL;
+	char *org = NULL;
+	char *org_unit = NULL;
+	char *common_name = NULL;
+	char *email = NULL;
+
+	g_return_if_fail (subject_str != NULL);
+
+	subject_dup = g_strdup (subject_str);
+	ptr = subject_dup;
+	while (*ptr != '\0') {
+		if (*ptr != '/') {
+			ptr++;
+			continue;
+		}
+
+		*ptr = '\0';
+		ptr++;
+
+		if (strncmp (ptr, "C=", 2) == 0) {
+			ptr += 2;
+			country = ptr;
+		} else if (strncmp (ptr, "ST=", 3) == 0) {
+			ptr += 3;
+			state = ptr;
+		} else if (strncmp (ptr, "L=", 2) == 0) {
+			ptr += 2;
+			locality = ptr;
+		} else if (strncmp (ptr, "O=", 2) == 0) {
+			ptr += 2;
+			org = ptr;
+		} else if (strncmp (ptr, "OU=", 3) == 0) {
+			ptr += 3;
+			org_unit = ptr;
+		} else if (strncmp (ptr, "CN=", 3) == 0) {
+			ptr += 3;
+			common_name = ptr;
+		} else if (strncmp (ptr, "emailAddress=", 13) == 0) {
+			ptr += 13;
+			email = ptr;
+		}
+	}
+
+	if (country)
+		printf ("Country = %s\n", country);
+	if (state)
+		printf ("State = %s\n", state);
+	if (locality)
+		printf ("Locality = %s\n", locality);
+	if (org)
+		printf ("Organization = %s\n", org);
+	if (org_unit)
+		printf ("Organization Unit = %s\n", org_unit);
+	if (common_name)
+		printf ("Common Name = %s\n", common_name);
+	if (email)
+		printf ("Email = %s\n", email);
+
+	g_free (subject_dup);
+}
+
 int
 main()
 {
@@ -149,11 +216,19 @@ main()
 
 	printf ("\n====\n\n");
 
+	parse_and_print_subject (SUBJECT_1);
+
+	printf ("\n====\n\n");
+
 	subject = parse_subject (SUBJECT_2);
 
 	print_subject (subject);
 
 	free_subject (subject);
+
+	printf ("\n====\n\n");
+
+	parse_and_print_subject (SUBJECT_2);
 
 	return 0;
 }
